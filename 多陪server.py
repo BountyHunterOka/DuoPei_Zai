@@ -16,6 +16,9 @@ from datetime import datetime, timezone, timedelta
 # import platform
 tz = timezone(timedelta(hours=8))
 app = FastAPI()
+running = False
+voice_talking = True
+video = False
 
 app.add_middleware(
     CORSMiddleware,
@@ -104,9 +107,6 @@ BASE_URL = "https://api.duopei.feiniaowangluo.com"
 session = requests.Session()
 session.headers.update(HEADERS)
 
-running = False
-voice_talking = True
-video = False
 
 # ========== 日志输出 ==========
 def log(text):
@@ -211,7 +211,11 @@ def run_loop(interval):
 
 # ========== 控制函数 ==========
 def start_grabbing():
-    global running
+    global running,video,voice_talking
+    voice_talking = True
+    video = False
+    print('voice_talking: ', voice_talking)
+    print('video: ', video)
     if running:
         return
     try:
