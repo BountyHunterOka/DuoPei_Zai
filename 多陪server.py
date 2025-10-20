@@ -47,6 +47,11 @@ def stop_voice():
     stop_talking()
     return "不过滤连麦单"
 
+@app.get("/only_video")
+def video_now():
+    only_video()
+    return "只抢视频单已开启"
+
 @app.get("/check_running")
 def check():
     if running:
@@ -101,6 +106,7 @@ session.headers.update(HEADERS)
 
 running = False
 voice_talking = True
+video = False
 
 # ========== 日志输出 ==========
 def log(text):
@@ -154,7 +160,10 @@ def extract_order_id(decrypted_json_str):
             #     log("[跳过订单] 有备注")
             #     continue
             names = order.get("item", {}).get("names", [])
-            if voice_talking and any(keyword in name for keyword in ['连麦','听歌'] for name in names):
+            if video and '视频通话' not in names:
+                log("[跳过订单] 只要视频单")
+                continue
+            if not video and voice_talking and any(keyword in name for keyword in ['连麦','听歌'] for name in names):
                 log("[跳过订单] 不要连麦单")
                 continue
             return order.get("id")
@@ -231,3 +240,8 @@ def stop_talking():
     global voice_talking
     voice_talking = False
     log("[不过滤连麦单.]")
+
+def only_video():
+    global video
+    video = True
+    log("[只要视频单.]")
